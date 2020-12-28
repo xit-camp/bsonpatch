@@ -272,15 +272,6 @@ class JsonPointer {
             this.decodedToken = decodedToken;
         }
 
-        private static final Pattern ENCODED_TILDA_PATTERN = Pattern.compile("~");
-        private static final Pattern ENCODED_SLASH_PATTERN = Pattern.compile("/");
-
-        private static String encodePath(Object object) {
-            String path = object.toString(); // see http://tools.ietf.org/html/rfc6901#section-4
-            path = ENCODED_TILDA_PATTERN.matcher(path).replaceAll("~0");
-            return ENCODED_SLASH_PATTERN.matcher(path).replaceAll("~1");
-        }
-
         private static final Pattern VALID_ARRAY_IND = Pattern.compile("-|0|(?:[1-9][0-9]*)");
 
         public boolean isArrayIndex() {
@@ -305,6 +296,14 @@ class JsonPointer {
         @Override
         public String toString() {
             return encodePath(decodedToken);
+        }
+
+        private static String encodePath(String path) {
+            // see http://tools.ietf.org/html/rfc6901#section-4
+            // this shouldn't be a hot path as its used mostly for error reporting
+            return path
+                    .replaceAll("~","~0")
+                    .replaceAll("/","~1");
         }
 
         @Override
