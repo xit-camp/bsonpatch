@@ -83,7 +83,11 @@ class JsonPointer {
             switch (c) {
                 // Escape sequences
                 case '~':
-                    switch (path.charAt(++i)) {
+                    if (++i == path.length()) {
+                        throw new IllegalArgumentException(
+                                "Invalid escape sequence at end of pointer");
+                    }
+                    switch (path.charAt(i)) {
                         case '0': reftoken.append('~'); continue;
                         case '1': reftoken.append('/'); continue;
                         default:

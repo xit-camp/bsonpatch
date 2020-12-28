@@ -147,6 +147,11 @@ public class JsonPointerTest {
         JsonPointer.parse("/~a");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void trailingTildeCorrectException() {
+        JsonPointer.parse("/a/b/c~");
+    }
+
     // Evaluation tests --
 
     @Test
