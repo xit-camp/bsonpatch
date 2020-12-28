@@ -93,7 +93,7 @@ class JsonPointer {
 
                 // New reftoken
                 case '/':
-                    tokens.add(RefToken.parse(reftoken.toString()));
+                    tokens.add(new RefToken(reftoken.toString()));
                     reftoken.setLength(0);
                     continue;
 
@@ -102,7 +102,7 @@ class JsonPointer {
             }
         }
 
-        tokens.add(RefToken.parse(reftoken.toString()));
+        tokens.add(new RefToken(reftoken.toString()));
         return new JsonPointer(tokens);
     }
 
@@ -263,18 +263,9 @@ class JsonPointer {
         private String decodedToken;
         transient private Integer index = null;
 
-        public RefToken(String decodedToken) {
+        /* package */ RefToken(String decodedToken) {
             if (decodedToken == null) throw new IllegalArgumentException("Token can't be null");
             this.decodedToken = decodedToken;
-        }
-
-        private static final Pattern DECODED_TILDA_PATTERN = Pattern.compile("~0");
-        private static final Pattern DECODED_SLASH_PATTERN = Pattern.compile("~1");
-
-        private static String decodePath(Object object) {
-            String path = object.toString(); // see http://tools.ietf.org/html/rfc6901#section-4
-            path = DECODED_SLASH_PATTERN.matcher(path).replaceAll("/");
-            return DECODED_TILDA_PATTERN.matcher(path).replaceAll("~");
         }
 
         private static final Pattern ENCODED_TILDA_PATTERN = Pattern.compile("~");
@@ -287,11 +278,6 @@ class JsonPointer {
         }
 
         private static final Pattern VALID_ARRAY_IND = Pattern.compile("-|0|(?:[1-9][0-9]*)");
-
-        public static RefToken parse(String rawToken) {
-            if (rawToken == null) throw new IllegalArgumentException("Token can't be null");
-            return new RefToken(decodePath(rawToken));
-        }
 
         public boolean isArrayIndex() {
             if (index != null) return true;
