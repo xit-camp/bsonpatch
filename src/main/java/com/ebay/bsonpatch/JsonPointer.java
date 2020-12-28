@@ -265,20 +265,26 @@ class JsonPointer {
 
     /** Represents a single JSON Pointer reference token. */
     static class RefToken {
-        private String decodedToken;
+        private final String decodedToken;
         transient private Integer index = null;
 
         /* package */ RefToken(String decodedToken) {
             this.decodedToken = decodedToken;
         }
 
-        private static final Pattern VALID_ARRAY_IND = Pattern.compile("-|0|(?:[1-9][0-9]*)");
+        // string representation of a non-negative integer without preceding 0s
+        private static final Pattern VALID_ARRAY_IND = Pattern.compile("^0|(?:[1-9]\\d*)$");
 
         public boolean isArrayIndex() {
-            if (index != null) return true;
-            Matcher matcher = VALID_ARRAY_IND.matcher(decodedToken);
-            if (matcher.matches()) {
-                index = matcher.group().equals("-") ? LAST_INDEX : Integer.parseInt(matcher.group());
+            if (index != null) {
+                return true;
+            }
+            else if ("-".equals(decodedToken)) {
+                index = LAST_INDEX;
+                return true;
+            }
+            else if (VALID_ARRAY_IND.matcher(decodedToken).matches()) {
+                index = Integer.parseInt(decodedToken);
                 return true;
             }
             return false;
