@@ -121,6 +121,7 @@ class JsonPointer {
      * @return The new {@link JsonPointer} instance.
      */
     JsonPointer append(String field) {
+        if (field == null) throw new IllegalArgumentException("Field can't be null");
         RefToken[] newTokens = Arrays.copyOf(tokens, tokens.length + 1);
         newTokens[tokens.length] = new RefToken(field);
         return new JsonPointer(newTokens);
@@ -264,7 +265,6 @@ class JsonPointer {
         transient private Integer index = null;
 
         /* package */ RefToken(String decodedToken) {
-            if (decodedToken == null) throw new IllegalArgumentException("Token can't be null");
             this.decodedToken = decodedToken;
         }
 
