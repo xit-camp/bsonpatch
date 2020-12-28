@@ -30,8 +30,8 @@ import org.bson.BsonValue;
  *      // Evaluate a JSON pointer against a live document
  *      BsonDocument doc = BsonDocument.parse("{\"foo\":[\"bar\", \"baz\"]}");
  *      BsonValue baz = JsonPointer.parse("/foo/1").{@link #evaluate(BsonValue) evaluate}(doc);
- *      assert(baz.asString().getValue().equals("baz")); 
- *      
+ *      assert(baz.asString().getValue().equals("baz"));
+ *
  * </pre>
  *
  * <p>Instances of {@link JsonPointer} and its constituent {@link RefToken}s are <b>immutable</b>.
@@ -39,10 +39,11 @@ import org.bson.BsonValue;
  * @since 0.4.8
  */
 class JsonPointer {
-    private final RefToken[] tokens;
 
     /** A JSON pointer representing the root node of a JSON document */
-    public final static JsonPointer ROOT = new JsonPointer(new RefToken[] {});
+    /* package */ final static JsonPointer ROOT = new JsonPointer(new RefToken[0]);
+
+    private final RefToken[] tokens;
 
     private JsonPointer(RefToken[] tokens) {
         this.tokens = tokens;
@@ -65,47 +66,44 @@ class JsonPointer {
      * @throws IllegalArgumentException The specified JSON Pointer is invalid.
      */
     public static JsonPointer parse(String path) throws IllegalArgumentException {
-        StringBuilder reftoken = null;
-        List<RefToken> result = new ArrayList<RefToken>();
+        if (path.isEmpty()) {
+            return ROOT;
+        }
 
-        for (int i = 0; i < path.length(); ++i) {
-            char c = path.charAt(i);
+        if (path.charAt(0) != '/') {
+            throw new IllegalArgumentException("Missing leading solidus");
+        }
 
-            // Require leading slash
-            if (i == 0) {
-                if (c != '/') throw new IllegalArgumentException("Missing leading slash");
-                reftoken = new StringBuilder();
-                continue;
-            }
+        final StringBuilder reftoken = new StringBuilder();
+        final List<RefToken> tokens = new ArrayList<>();
+
+        for (int i = 1; i < path.length(); ++i) {
+            final char c = path.charAt(i);
 
             switch (c) {
                 // Escape sequences
                 case '~':
                     switch (path.charAt(++i)) {
-                        case '0': reftoken.append('~'); break;
-                        case '1': reftoken.append('/'); break;
+                        case '0': reftoken.append('~'); continue;
+                        case '1': reftoken.append('/'); continue;
                         default:
-                            throw new IllegalArgumentException("Invalid escape sequence ~" + path.charAt(i) + " at index " + i);
+                            throw new IllegalArgumentException(
+                                    "Invalid escape sequence ~" + path.charAt(i) + " at index " + i);
                     }
-                    break;
 
                 // New reftoken
                 case '/':
-                    result.add(new RefToken(reftoken.toString()));
+                    tokens.add(RefToken.parse(reftoken.toString()));
                     reftoken.setLength(0);
-                    break;
+                    continue;
 
                 default:
                     reftoken.append(c);
-                    break;
             }
         }
 
-        if (reftoken == null)
-            return ROOT;
-
-        result.add(RefToken.parse(reftoken.toString()));
-        return new JsonPointer(result);
+        tokens.add(RefToken.parse(reftoken.toString()));
+        return new JsonPointer(tokens);
     }
 
     /**
