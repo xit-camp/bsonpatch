@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *  
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.ebay.bsonpatch;
 
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -28,11 +27,12 @@ import org.apache.commons.io.IOUtils;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
-import org.junit.Assert;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JsonDiffTest2 {
+
     private static BsonArray jsonNode;
 
     @BeforeClass
@@ -46,15 +46,15 @@ public class JsonDiffTest2 {
     @Test
     public void testPatchAppliedCleanly() {
         for (int i = 0; i < jsonNode.size(); i++) {
-        	BsonDocument node = jsonNode.get(i).asDocument();
-        	
+            BsonDocument node = jsonNode.get(i).asDocument();
+
             BsonValue first = node.get("first");
             BsonValue second = node.get("second");
             BsonArray patch = node.getArray("patch");
             String message = node.containsKey("message") ? node.getString("message").getValue() : "";
             BsonValue secondPrime = BsonPatch.apply(patch, first);
 
-            Assert.assertThat(message, secondPrime, equalTo(second));
+            assertThat(message, secondPrime, equalTo(second));
         }
 
     }

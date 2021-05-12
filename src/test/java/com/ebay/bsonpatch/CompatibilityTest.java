@@ -23,7 +23,7 @@ import static com.ebay.bsonpatch.CompatibilityFlags.ALLOW_MISSING_TARGET_OBJECT_
 import static com.ebay.bsonpatch.CompatibilityFlags.MISSING_VALUES_AS_NULLS;
 import static com.ebay.bsonpatch.CompatibilityFlags.REMOVE_NONE_EXISTING_ARRAY_ELEMENT;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.util.EnumSet;
